@@ -23,3 +23,29 @@ Click:
 New SSH Key
 Paste key
 Save
+
+Step 7: Change Remote URL to SSH
+
+Check current remote:
+
+git remote -v
+
+If HTTPS:
+
+https://github.com/user/repo.git
+
+Change to SSH:
+
+git remote set-url origin git@github.com:USERNAME/REPO.git
+
+Example:
+
+git remote set-url origin git@github.com:Swapgit92/maven-git-demo.git
+Step 8: Test
+ssh -T git@github.com
+
+You should see:
+
+Hi username! You've successfully authenticated
+
+Now push without password:
