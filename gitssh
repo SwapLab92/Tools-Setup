@@ -1,0 +1,25 @@
+Step 2: Generate SSH Key
+ssh-keygen -t ed25519 -C "your_email@example.com"
+
+Press Enter for all prompts.
+
+Step 3: Start SSH Agent
+eval "$(ssh-agent -s)"
+Step 4: Add SSH Key
+ssh-add ~/.ssh/id_ed25519
+Step 5: Copy Public Key
+cat ~/.ssh/id_ed25519.pub
+
+Copy full output.
+
+Step 6: Add Key to GitHub
+
+Go to:
+
+GitHub SSH Settings
+
+Click:
+
+New SSH Key
+Paste key
+Save
