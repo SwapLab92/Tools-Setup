@@ -1,14 +1,67 @@
-resource "aws_security_group" "allow_tls" {
-  name        = "allow_tls"
-  description = "Allow TLS inbound traffic"
-  vpc_id      = aws_vpc.main.id
+provider "aws" {
+  region = "ap-south-1"
+}
+resource "aws_vpc" "Devops-vpc" {
+  cidr_block = "10.0.0.0/16"
+
+  tags = {
+    Name = "Devops-VPC"
+  }
+}
+
+resource "aws_subnet" "Devops-subnet" {
+  vpc_id     = aws_vpc.Devops-vpc.id
+  cidr_block = "10.0.1.0/24"
+  tags = {
+    Name = "Devops-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "Devops-ig" {
+  vpc_id = aws_vpc.Devops-vpc.id
+
+  tags = {
+    Name = "Devops-ig"
+  }
+}
+
+resource "aws_route_table" "Devops-route" {
+  vpc_id = aws_vpc.Devops-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.Devops-ig.id
+  }
+
+  tags = {
+    Name = "Devops-route"
+  }
+}
+
+resource "aws_route_table_association" "Devops-route-assosiation" {
+  subnet_id      = aws_subnet.Devops-subnet.id
+  route_table_id = aws_route_table.Devops-route.id
+}
+
+resource "aws_security_group" "Devops-sg" {
+  name        = "Devops-sg"
+  description = "Allow ssh and HTTP"
+  vpc_id      = aws_vpc.Devops-vpc.id
 
   ingress {
-    description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+   ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -19,6 +72,25 @@ resource "aws_security_group" "allow_tls" {
   }
 
   tags = {
-    Name = "allow_tls"
+    Name = "Devops-sg"
   }
+}
+
+resource "aws_instance" "Devops-VM" {
+
+  ami                    = "ami-0f58b397bc5c1f2e8"   # Amazon Linux 2023 (Mumbai)
+  instance_type          = "t2.micro"
+
+  subnet_id              = aws_subnet.Devops-subnet.id
+
+  vpc_security_group_ids = [aws_security_group.Devops-sg.id]
+
+  associate_public_ip_address = true
+
+  key_name = "demo-pair"
+
+  tags = {
+    Name = "Devops-VM"
+  }
+
 }
